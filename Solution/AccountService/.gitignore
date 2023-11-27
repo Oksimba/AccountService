@@ -1,0 +1,23 @@
+ Volume in drive C is Windows
+ Volume Serial Number is 64F7-6A44
+
+ Directory of C:\Projects\Hospital\Hospital\Solution\AccountService
+
+10/17/2022  05:53 PM    <DIR>          .
+10/17/2022  05:53 PM    <DIR>          ..
+10/17/2022  05:53 PM                 0 .gitignore
+07/26/2022  01:57 PM               127 appsettings.Development.json
+10/06/2022  02:18 AM               508 appsettings.json
+10/11/2022  10:03 AM    <DIR>          bin
+10/11/2022  10:03 AM    <DIR>          Controllers
+10/11/2022  10:03 AM    <DIR>          DB
+09/12/2022  01:04 AM    <DIR>          Interfaces
+10/05/2022  11:36 PM             1,013 AccountService.csproj
+09/12/2022  12:35 AM               406 AccountService.csproj.user
+10/11/2022  10:03 AM    <DIR>          Models
+10/11/2022  10:03 AM    <DIR>          obj
+10/07/2022  03:21 PM             2,204 Program.cs
+10/11/2022  10:03 AM    <DIR>          Properties
+07/26/2022  01:57 PM               295 WeatherForecast.cs
+               7 File(s)          4,553 bytes
+               9 Dir(s)  378,772,586,496 bytes free
