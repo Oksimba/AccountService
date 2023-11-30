@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
 using BusinessLogic.Interfaces;
-using Common.Helpers;
 using DataAccess;
 using Entities;
 using Microsoft.Extensions.Logging;
-using Repositories;
-using Repositories.Interfaces;
-using System.Numerics;
 
 namespace BusinessLogic.Services
 {
@@ -15,12 +11,20 @@ namespace BusinessLogic.Services
         UnitOfWork _unitOfWork;
         IMapper _mapper;
         ILogger<CardService> _logger;
-        public UserService(UnitOfWork unitOfWork, IMapper mapper, ILogger<CardService> logger)
+        ServiceErrorWrapper _errorWrapper;
+        string _entityName = nameof(User);
+        string _servicName = nameof(UserService);
+
+        public UserService(UnitOfWork unitOfWork, 
+            IMapper mapper, ILogger<CardService> logger, 
+            ServiceErrorWrapper serviceErrorWrapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _errorWrapper = serviceErrorWrapper;
         }
+
         public IEnumerable<User> Get()
         {
             var users = _unitOfWork.UserRepository.Get();
@@ -42,67 +46,43 @@ namespace BusinessLogic.Services
 
         public async Task Create(User user)
         {
-            using (var transaction = _unitOfWork.BeginTransaction())
+            await _errorWrapper.ExecuteAsync(async () =>
             {
-                try
-                {
-                    await _unitOfWork.UserRepository.Create(user);
+                await _unitOfWork.UserRepository.Create(user);
 
-                    await transaction.CommitAsync();
-
-                    _logger.LogInformation($"New user with id: {user.Id} was creared.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical($"Exception while creating new user. {ex.Message}");
-                    await transaction.RollbackAsync();
-                    throw;
-                }
-            }
+                _logger.LogInformation(LogMessages.OnEntityCreatingLog(user.Id, _entityName));
+            },
+            _unitOfWork,
+            _servicName,
+            LogMessages.OnEntityCreatingErrorLog(_entityName));
         }
 
         public async Task Update(int userId, User updatedAccount)
         {
-            using (var transaction = _unitOfWork.BeginTransaction())
+            await _errorWrapper.ExecuteAsync(async () =>
             {
-                try
-                {
-                    await _unitOfWork.UserRepository.Update(userId, updatedAccount);
+                await _unitOfWork.UserRepository.Update(userId, updatedAccount);
 
-                    await transaction.CommitAsync();
-
-                    _logger.LogInformation($"User with id: {updatedAccount.Id} was updated.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical($"Exception while updating user with id: {userId}. {ex.Message}");
-                    await transaction.RollbackAsync();
-                    throw;
-                }
-            }
+                _logger.LogInformation(LogMessages.OnEntityUpdatingLog(userId, _entityName));
+            },
+            _unitOfWork,
+            _servicName,
+            LogMessages.OnEntityUpdatingErrorLog(userId, _entityName));
         }
 
         public async Task<User> Delete(int userId)
         {
-            using (var transaction = _unitOfWork.BeginTransaction())
+            return await _errorWrapper.ExecuteAsync(async () =>
             {
-                try
-                {
-                    var deletedUser = await _unitOfWork.UserRepository.Delete(userId);
+                var deletedUser = await _unitOfWork.UserRepository.Delete(userId);
 
-                    await transaction.CommitAsync();
+                _logger.LogInformation(LogMessages.OnEntityDeletingLog(userId, _entityName));
 
-                    _logger.LogInformation($"User with id: {userId} was deleted.");
-
-                    return deletedUser;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical($"Exception while deleting user with id: {userId}. {ex.Message}");
-                    await transaction.RollbackAsync();
-                    throw;
-                }
-            }
+                return deletedUser;
+            },
+            _unitOfWork,
+            _servicName,
+            LogMessages.OnEntityDeletingErrorLog(userId, _entityName));
         }
 
         public async Task<bool> CheckIfUserExists(string login)

@@ -3,7 +3,6 @@ using BusinessLogic.Interfaces;
 using DataAccess;
 using Entities;
 using Microsoft.Extensions.Logging;
-using System.Numerics;
 
 namespace BusinessLogic.Services
 {
@@ -12,11 +11,16 @@ namespace BusinessLogic.Services
         UnitOfWork _unitOfWork;
         IMapper _mapper;
         ILogger<CardService> _logger;
-        public CardService(UnitOfWork unitOfWork, IMapper mapper, ILogger<CardService> logger)
+        ServiceErrorWrapper _errorWrapper;
+
+        string _entityName = nameof(Card);
+        string _servicName = nameof(CardService);
+        public CardService(UnitOfWork unitOfWork, IMapper mapper, ILogger<CardService> logger, ServiceErrorWrapper errorWrapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _errorWrapper = errorWrapper;
         }
         public IEnumerable<Card> GetAll(int userId)
         {
@@ -31,67 +35,47 @@ namespace BusinessLogic.Services
 
         public async Task Create(Card card)
         {
-            using (var transaction = _unitOfWork.BeginTransaction())
+            await _errorWrapper.ExecuteAsync(async () =>
             {
-                try
-                {
-                    await _unitOfWork.CardRepository.Create(card);
+                await _unitOfWork.CardRepository.Create(card);
 
-                    await transaction.CommitAsync();
+                _logger.LogInformation($"New card with id: {card.Id} was creared.");
 
-                    _logger.LogInformation($"New card with id: {card.Id} was creared.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical($"Exception while creating new card. {ex.Message}");
-                    await transaction.RollbackAsync();
-                    throw;
-                }
-            }
+                _logger.LogInformation(LogMessages.OnEntityCreatingLog(card.Id, _entityName));
+            },
+            _unitOfWork,
+            _servicName,
+            LogMessages.OnEntityCreatingErrorLog(_entityName));
+
         }
 
         public async Task Update(int id, Card updatedCard)
         {
-            using (var transaction = _unitOfWork.BeginTransaction())
+            await _errorWrapper.ExecuteAsync(async () =>
             {
-                try
-                {
-                    await _unitOfWork.CardRepository.Update(id, updatedCard);
+                await _unitOfWork.CardRepository.Update(id, updatedCard);
 
-                    await transaction.CommitAsync();
-
-                    _logger.LogInformation($"Card with id: {updatedCard.Id} was updated.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical($"Exception while updating the card with id: {id}. {ex.Message}");
-                    await transaction.RollbackAsync();
-                    throw;
-                }
-            }
+                _logger.LogInformation(LogMessages.OnEntityUpdatingLog(id, _entityName));
+            },
+            _unitOfWork,
+            _servicName,
+            LogMessages.OnEntityUpdatingErrorLog(id, _entityName));
         }
 
         public async Task<Card> Delete(int id)
         {
-            using (var transaction = _unitOfWork.BeginTransaction())
+
+            return await _errorWrapper.ExecuteAsync(async () =>
             {
-                try
-                {
-                    var deletedCard = await _unitOfWork.CardRepository.Delete(id);
+                var deletedCard = await _unitOfWork.CardRepository.Delete(id);
 
-                    await transaction.CommitAsync();
+                _logger.LogInformation(LogMessages.OnEntityDeletingLog(id, _entityName));
 
-                    _logger.LogInformation($"Card with id: {id} was deleted.");
-
-                    return deletedCard;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical($"Exception while deleting the card with id: {id}. {ex.Message}");
-                    await transaction.RollbackAsync();
-                    throw;
-                }
-            }
+                return deletedCard;
+            },
+            _unitOfWork,
+            _servicName,
+            LogMessages.OnEntityDeletingErrorLog(id, _entityName));
         }
 
         public bool IsUserCardOwner(int userId, int cardId)

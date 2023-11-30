@@ -1,4 +1,5 @@
 using AccountService.Filters;
+using BusinessLogic;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
 using Common;
@@ -40,6 +41,8 @@ builder.Services.AddScoped<IDbInitializeService, DbInitializeService>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<MustBeAccountOwnerFilter>();
 builder.Services.AddScoped<MustBeCardOwnerFilter>();
+
+builder.Services.AddScoped<ServiceErrorWrapper>();
 
 var authOptions = builder.Configuration.GetSection("Auth").Get<AuthOptions>();
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("Auth"));
