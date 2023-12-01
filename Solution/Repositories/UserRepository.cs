@@ -23,16 +23,15 @@ namespace Repositories
         }
         public IEnumerable<User> Get()
         {
-            return _context.Users.Include(u => u.Cards);
+            return _context.Users;
         }
 
         public async Task<User> Get(int id)
         {
             return await _errorWrapper.ExecuteAsync(async () =>
             {
-                return await _context.Users
-                .Include(u => u.Cards)
-                .SingleOrDefaultAsync(u => u.Id == id);
+                var user = await _context.Users.FindAsync(id);
+                return user;
             },
             _repoName,
             LogMessages.OnGetEntityByIdErrorLog(id, _entityName)
@@ -45,7 +44,6 @@ namespace Repositories
             return await _errorWrapper.ExecuteAsync(async () =>
             {
                 return await _context.Users
-                .Include(u => u.Cards)
                 .SingleOrDefaultAsync(u => u.Login == login);
             },
             _repoName,

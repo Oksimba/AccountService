@@ -23,6 +23,6 @@ namespace Entities
         [Required]
         public string PhoneNumber { get; set; }
 
-        public List<Card> Cards { get; set; }
+        public virtual List<Card> Cards { get; set; }
     }
 }

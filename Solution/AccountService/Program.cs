@@ -30,7 +30,7 @@ builder.Services.AddDbContext<AccountServiceDbContext>(
     options =>
     options.EnableSensitiveDataLogging()
     .UseSqlServer(
-        builder.Configuration["ConnectionStrings:DefaultConnection"]));
+        builder.Configuration["ConnectionStrings:DefaultConnection"]), ServiceLifetime.Scoped);
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
