@@ -41,7 +41,7 @@ builder.Services.AddScoped<IDbInitializeService, DbInitializeService>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<MustBeAccountOwnerFilter>();
 builder.Services.AddScoped<MustBeCardOwnerFilter>();
-
+builder.Services.AddScoped<RepositotyErrorWrapper>();
 builder.Services.AddScoped<ServiceErrorWrapper>();
 
 var authOptions = builder.Configuration.GetSection("Auth").Get<AuthOptions>();
