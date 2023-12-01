@@ -37,6 +37,7 @@ builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<UnitOfWork>();
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICardService, CardService>();
 builder.Services.AddScoped<IDbInitializeService, DbInitializeService>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<MustBeAccountOwnerFilter>();
