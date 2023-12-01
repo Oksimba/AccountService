@@ -12,7 +12,6 @@ namespace BusinessLogic.Services
         IMapper _mapper;
         ILogger<CardService> _logger;
         ServiceErrorWrapper _errorWrapper;
-        string _entityName = nameof(User);
         string _servicName = nameof(UserService);
 
         public UserService(UnitOfWork unitOfWork, 
@@ -50,11 +49,11 @@ namespace BusinessLogic.Services
             {
                 await _unitOfWork.UserRepository.Create(user);
 
-                _logger.LogInformation(LogMessages.OnEntityCreatingLog(user.Id, _entityName));
+                _logger.LogInformation(LogMessages.OnEntityCreatingLog);
             },
             _unitOfWork,
             _servicName,
-            LogMessages.OnEntityCreatingErrorLog(_entityName));
+            LogMessages.OnEntityCreatingErrorLog);
         }
 
         public async Task Update(int userId, User updatedAccount)
@@ -63,11 +62,11 @@ namespace BusinessLogic.Services
             {
                 await _unitOfWork.UserRepository.Update(userId, updatedAccount);
 
-                _logger.LogInformation(LogMessages.OnEntityUpdatingLog(userId, _entityName));
+                _logger.LogInformation(LogMessages.OnEntityUpdatingLog);
             },
             _unitOfWork,
             _servicName,
-            LogMessages.OnEntityUpdatingErrorLog(userId, _entityName));
+            LogMessages.OnEntityUpdatingErrorLog);
         }
 
         public async Task<User> Delete(int userId)
@@ -76,13 +75,13 @@ namespace BusinessLogic.Services
             {
                 var deletedUser = await _unitOfWork.UserRepository.Delete(userId);
 
-                _logger.LogInformation(LogMessages.OnEntityDeletingLog(userId, _entityName));
+                _logger.LogInformation(LogMessages.OnEntityDeletingLog);
 
                 return deletedUser;
             },
             _unitOfWork,
             _servicName,
-            LogMessages.OnEntityDeletingErrorLog(userId, _entityName));
+            LogMessages.OnEntityDeletingErrorLog);
         }
 
         public async Task<bool> CheckIfUserExists(string login)

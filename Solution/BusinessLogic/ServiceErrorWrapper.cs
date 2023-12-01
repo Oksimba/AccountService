@@ -1,5 +1,5 @@
-﻿using DataAccess;
-using Microsoft.EntityFrameworkCore;
+﻿using Common.Exceptions;
+using DataAccess;
 using Microsoft.Extensions.Logging;
 
 namespace BusinessLogic
@@ -8,12 +8,12 @@ namespace BusinessLogic
     {
         private readonly ILogger<ServiceErrorWrapper> _logger;
 
-        public ServiceErrorWrapper(ILogger<ServiceErrorWrapper> logger, UnitOfWork unitOfWork)
+        public ServiceErrorWrapper(ILogger<ServiceErrorWrapper> logger)
         {
             _logger = logger;
         }
 
-        public async Task<T> ExecuteAsync<T>(Func<Task<T>> action, UnitOfWork unitOfWork, string serviceName, string errorMessade)
+        public async Task<T> ExecuteAsync<T>(Func<Task<T>> action, UnitOfWork unitOfWork, string serviceName, string errorMessage)
         {
             using (var transaction = unitOfWork.BeginTransaction())
             {
@@ -24,23 +24,23 @@ namespace BusinessLogic
 
                     return res;
                 }
-                catch (DbUpdateException dbEx)
+                catch (RepositoryException repoEx)
                 {
-                    _logger.LogCritical($"DataBase error in {serviceName}.");
-                    _logger.LogCritical($"{errorMessade}: {dbEx.Message}");
+                    _logger.LogCritical($"Repository error in {serviceName}.");
+                    _logger.LogCritical($"{errorMessage}: {repoEx.Message}");
                     await transaction.RollbackAsync();
                     throw;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogCritical($"Error in {serviceName}: {ex.Message}");
+                    _logger.LogCritical($"Unexpected error in {serviceName}: {ex.Message}");
                     await transaction.RollbackAsync();
                     throw;
                 }
             }
         }
 
-        public async Task ExecuteAsync(Func<Task> action, UnitOfWork unitOfWork, string serviceName, string errorMessade)
+        public async Task ExecuteAsync(Func<Task> action, UnitOfWork unitOfWork, string serviceName, string errorMessage)
         {
             using (var transaction = unitOfWork.BeginTransaction())
             {
@@ -49,16 +49,16 @@ namespace BusinessLogic
                     await action();
                     await transaction.CommitAsync();
                 }
-                catch (DbUpdateException dbEx)
+                catch (RepositoryException repoEx)
                 {
-                    _logger.LogCritical($"DataBase error in {serviceName}.");
-                    _logger.LogCritical($"{errorMessade}: {dbEx.Message}");
+                    _logger.LogCritical($"Repository error in {serviceName}.");
+                    _logger.LogCritical($"{errorMessage}: {repoEx.Message}");
                     await transaction.RollbackAsync();
                     throw;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogCritical($"Error in {serviceName}: {ex.Message}");
+                    _logger.LogCritical($"Unexpected error in {serviceName}: {ex.Message}");
                     throw;
                 }
             }

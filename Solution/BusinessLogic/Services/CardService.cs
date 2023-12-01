@@ -41,11 +41,11 @@ namespace BusinessLogic.Services
 
                 _logger.LogInformation($"New card with id: {card.Id} was creared.");
 
-                _logger.LogInformation(LogMessages.OnEntityCreatingLog(card.Id, _entityName));
+                _logger.LogInformation(LogMessages.OnEntityCreatingLog);
             },
             _unitOfWork,
             _servicName,
-            LogMessages.OnEntityCreatingErrorLog(_entityName));
+            LogMessages.OnEntityCreatingErrorLog);
 
         }
 
@@ -55,11 +55,11 @@ namespace BusinessLogic.Services
             {
                 await _unitOfWork.CardRepository.Update(id, updatedCard);
 
-                _logger.LogInformation(LogMessages.OnEntityUpdatingLog(id, _entityName));
+                _logger.LogInformation(LogMessages.OnEntityUpdatingLog);
             },
             _unitOfWork,
             _servicName,
-            LogMessages.OnEntityUpdatingErrorLog(id, _entityName));
+            LogMessages.OnEntityUpdatingErrorLog);
         }
 
         public async Task<Card> Delete(int id)
@@ -69,13 +69,13 @@ namespace BusinessLogic.Services
             {
                 var deletedCard = await _unitOfWork.CardRepository.Delete(id);
 
-                _logger.LogInformation(LogMessages.OnEntityDeletingLog(id, _entityName));
+                _logger.LogInformation(LogMessages.OnEntityDeletingLog);
 
                 return deletedCard;
             },
             _unitOfWork,
             _servicName,
-            LogMessages.OnEntityDeletingErrorLog(id, _entityName));
+            LogMessages.OnEntityDeletingErrorLog);
         }
 
         public bool IsUserCardOwner(int userId, int cardId)
