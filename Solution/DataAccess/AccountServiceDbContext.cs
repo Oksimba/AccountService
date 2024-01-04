@@ -5,6 +5,7 @@ namespace DataAccess
 {
     public class AccountServiceDbContext : DbContext, IDisposable
     {
+        public AccountServiceDbContext() : base() { }
         public AccountServiceDbContext(DbContextOptions<AccountServiceDbContext> options) : base(options)
         {
         }
@@ -28,6 +29,7 @@ namespace DataAccess
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            base.OnConfiguring(optionsBuilder);
             optionsBuilder.UseLazyLoadingProxies();
         }
 
